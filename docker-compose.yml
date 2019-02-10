@@ -1,0 +1,33 @@
+version: '2'
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/volumes:/var/lib/mysql
+    extends:
+      file: ./docker/mysql/password.yml
+      service: password
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/myapp
+    environment:
+      RAILS_ENV: development
+    extends:
+      file: ./docker/mysql/password.yml
+      service: password
+    depends_on:
+      - db
+  redis:
+    image: redis:latest
+    ports:
+      - "6372:6372"
+    volumes:
+      - ./docker/redis/volumes:/var/lib/redis

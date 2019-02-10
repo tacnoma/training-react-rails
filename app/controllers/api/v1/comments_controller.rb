@@ -5,7 +5,6 @@ class Api::V1::CommentsController < ApplicationController
 
   def create
     @comment = Comment.create(comment_params)
-    ActionCable.server.broadcast 'chat_channel', comment_params
     render :show, status: :created
   end
 

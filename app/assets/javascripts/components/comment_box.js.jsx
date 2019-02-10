@@ -1,17 +1,19 @@
 class CommentBox extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { data: [{ Text: 'hola' }] };
-    }
+  constructor(props) {
+    super(props);
+    this.state = { data: [{ Text: 'hola' }] };
+    this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
+    this.loadCommentsFromServer = this.loadCommentsFromServer.bind(this);
+  }
 
-    handleCommentSubmit(comment)  {
+  handleCommentSubmit(comment)  {
     $.ajax({
       url: this.props.url,
       dataType: 'json',
       type: 'POST',
       data: comment,
       success: function(data) {
-        this.setState({data: this.state.data.concat([data])});
+        this.setState({data: [data].concat(this.state.data)});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -40,9 +42,9 @@ class CommentBox extends React.Component {
   render() {
     return (
       <div className="CommentBox">
-      <h1>Comments</h1>
-      <CommentList data={this.state.data}/>
-      <CommentForm onCommentSubmit={this.handleCommentSubmit} />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
+        <h1>Comments</h1>
+        <CommentList data={this.state.data}/>
       </div>
     );
   }
@@ -52,8 +54,9 @@ class CommentList extends React.Component {
   constructor(props) {
       super(props);
   }
+
   render() {
-    var commentNodes = this.props.data.map(function (comment) {
+    let commentNodes = this.props.data.map(function (comment) {
       return (
         <Comment author={comment.author}>{comment.text}</Comment>
       );
@@ -67,13 +70,13 @@ class CommentList extends React.Component {
 }
 
 class Comment extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-  render() {
+  constructor(props) {
+    super(props);
+  }
 
-    //var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
-    var rawMarkup = 'test';
+  render() {
+    let children = this.props.children;
+    let rawMarkup = children ? marked(children.toString(), {sanitize: true}) : '';
     return (
       <div className="comment">
       <h2 className="commentAuthor">
@@ -86,13 +89,15 @@ class Comment extends React.Component {
 }
 
 class CommentForm extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+  constructor(props) {
+    super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
   handleSubmit(e) {
     e.preventDefault();
-    var author = this.author.value.trim();
-    var text = this.text.value.trim();
+    let author = this.author.value.trim();
+    let text = this.text.value.trim();
     if(!text || !author)  {
       return;
     }

@@ -1,24 +1,33 @@
 class CommentBox extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { data: [{ Text: 'hola' }] };
+    this.state = { data: [{ text: '', author: '', id: 0 }] };
     this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     this.loadCommentsFromServer = this.loadCommentsFromServer.bind(this);
   }
 
   handleCommentSubmit(comment)  {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: 'POST',
-      data: comment,
-      success: function(data) {
-        this.setState({data: [data].concat(this.state.data)});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
+    fetch(this.props.url, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, cors, *same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, same-origin, *omit
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrer: "no-referrer", // no-referrer, *client
+      body: JSON.stringify(comment),
+    })
+      .then(res =>  res.json())
+      .then(
+        (data) => {
+          this.setState({data: [data].concat(this.state.data)});
+        },
+        (xhr, status, err) => {
+          console.error(this.props.url, status, err.toString());
+        }
+      );
   }
 
   loadCommentsFromServer() {
@@ -58,7 +67,7 @@ class CommentList extends React.Component {
   render() {
     let commentNodes = this.props.data.map(function (comment) {
       return (
-        <Comment author={comment.author}>{comment.text}</Comment>
+        <Comment author={comment.author} key={comment.id.toString()}>{comment.text}</Comment>
       );
     });
     return (

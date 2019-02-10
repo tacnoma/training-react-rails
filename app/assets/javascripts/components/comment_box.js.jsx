@@ -22,16 +22,16 @@ class CommentBox extends React.Component {
   }
 
   loadCommentsFromServer() {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      success: function(result) {
-        this.setState({data: result.data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
+    fetch(this.props.url)
+      .then(res => res.json() )
+      .then(
+        (result) =>{
+          this.setState({data: result.data});
+        },
+        (xhr, status, err) => {
+          console.error(this.props.url, status, err.toString());
+        }
+      );
   }
 
   componentDidMount() {
